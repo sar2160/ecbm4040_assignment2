@@ -27,13 +27,16 @@ def dropout_forward(x, dropout_config, mode):
         # Remember to return retention mask for   #
         # backward.                               #
         ###########################################
-        raise NotImplementedError
+        #raise NotImplementedError
+        cache = np.random.binomial(n = 1 , p = keep_prob, size = x.shape)
+        out = x * cache
     elif mode == "test":
         ##########################################
         # TODO: Implement test phase dropout. No #
         # need to use mask here.                 #
         ##########################################
-        raise NotImplementedError
+        out = x 
+
     return out, cache
 
 
@@ -51,35 +54,35 @@ def dropout_backward(dout, cache):
 def bn_forward(x, gamma, beta, bn_params, mode):
     """
     Batch Normalization forward
-    
+
     The input x has shape (N, D) and contains a minibatch of N
     examples, where each example x[i] has D features. We will apply
-    mini-batch normalization on N samples in x. 
-    
+    mini-batch normalization on N samples in x.
+
     In the "train" mode:
     1. Apply normalization transform to input x and store in out.
        current_mean, current_var = mean(x), var(x)
        out = gamma*(x-current_mean)/sqrt(current_var+epsilon) + beta
-    
+
     2. Update mean and variance estimation in bn_config using moving average method, ie.,
        moving_mean = decay*moving_mean + (1-decay)*current_mean
        moving_var = decay*moving_var + (1-decay)*current_var
-       
+
     Side note:
     Here we use the moving average strategy to estimiate the mean and var of the data.
     It is kind of approximation to the mean and var of the training data. Also, this is
     a popular strategy and tensorflow use it in their implementation.
-    
-    In the "test" mode: 
+
+    In the "test" mode:
     Instead of using the mean and var of the input data, it is going to use mean and var
     stored in bn_config to make normalization transform.
-    
+
     :param x: a tensor with shape (N, D)
     :param gamma: (tensor) a scale tensor of length D, a trainable parameter in batch normalization.
     :param beta:  (tensor) an offset tensor of length D, a trainable parameter in batch normalization.
     :param bn_params:  (dict) including epsilon, decay, moving_mean, moving_var.
     :param mode:  (string) "train" or "test".
-    
+
     :return:
     - out: a tensor with the same shape as input x.
     - cahce: (tuple) contains (x, gamma, beta, eps, mean, var)
@@ -125,7 +128,7 @@ def bn_backward(dout, cache):
 
     :param dout:  a tensor with shape (N, D)
     :param cache:  (tuple) contains (x, gamma, beta, eps, mean, var)
-    
+
     :return:
     - dx, dgamma, dbeta
     """
