@@ -35,7 +35,7 @@ def dropout_forward(x, dropout_config, mode):
         # TODO: Implement test phase dropout. No #
         # need to use mask here.                 #
         ##########################################
-        out = x 
+        out = x
 
     return out, cache
 
@@ -94,7 +94,10 @@ def bn_forward(x, gamma, beta, bn_params, mode):
     moving_mean = bn_params.get('moving_mean', np.zeros(D, dtype=x.dtype))
     moving_var = bn_params.get('moving_var', np.ones(D, dtype=x.dtype))
 
+
+
     out, mean, var = None, None, None
+
     if mode == "train":
         #############################################################
         # TODO: Batch normalization forward train mode               #
@@ -105,18 +108,31 @@ def bn_forward(x, gamma, beta, bn_params, mode):
         #      4. remenber to use moving average method to update   #
         #         moving_mean and moving_var in the bn_params       #
         #############################################################
-        raise NotImplementedError
+
+        var        = np.var(x)
+        mean       = np.mean(x)
+
+        out = gamma * (x - mean) / (np.sqrt(np.tile(var, (N, 1)) + eps))
+        out += beta
+
+        moving_mean =  decay * moving_mean + (1-decay) * mean
+        moving_var  =  decay * moving_var + (1-decay) * var
+
     elif mode == 'test':
         #######################################################################
         # TODO: Batch normalization forward test mode                         #
         #######################################################################
-        raise NotImplementedError
+        var   = moving_var
+        mean  = moving_mean
+
+        out = gamma * (x - mean) / (np.sqrt(np.tile(var, (N, 1)) + eps))
+        out += beta
 
     # cache for back-propagation
     cache = (x, gamma, beta, eps, mean, var)
     # Update mean and variance estimation in bn_config
     bn_params['moving_mean'] = moving_mean
-    bn_params['moving_var'] = moving_var
+    bn_params['moving_var']  = moving_var
 
     return out, cache
 

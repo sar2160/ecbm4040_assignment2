@@ -20,7 +20,16 @@ class ImageGenerator(object):
         # x, y, num_of_samples, height, width, number of pixels translated, degree of rotation, is_horizontal_flip,
         # is_vertical_flip, is_add_noise. By default, set boolean values to
         # False.
-        raise NotImplementedError
+
+        self.x              = x
+        self.y              = y
+        self.num_of_samples = x.shape[0]
+        self.height         = x.shape[1]
+        self.width          = x.shape[2]
+        self.n_pixels_translated = None
+        self.rotation_angle      = None
+        self.is_add_noise        = None
+        #raise NotImplementedError
         #######################################################################
         #                                                                     #
         #                                                                     #
@@ -53,7 +62,21 @@ class ImageGenerator(object):
         #       else:
         #           shuffle(x)
         #           reset batch_count
-        raise NotImplementedError
+        x = self.x
+        y = self.y
+        total_batches, remainder = divmod(self.num_of_samples, batch_size)
+        batch_count = 0
+        while True:
+            if (batch_count < total_batches):
+                batch_count += 1
+                idx_start = batch_count*num_of_samples
+                idx_stop  = (batch_count+1) * num_of_samples
+                yield x[idx_start:idx_stop, :, : ,:] , y[idx_start:idx_stop]
+            else:
+                np.random.shuffle(x)
+                batch_count = 0
+
+        #raise NotImplementedError
         #######################################################################
         #                                                                     #
         #                                                                     #
@@ -66,7 +89,14 @@ class ImageGenerator(object):
         """
         Plot the top 16 images (index 0~15) of self.x for visualization.
         """
-        raise NotImplementedError
+
+
+        f, axarr = plt.subplots(4, 4, figsize=(8,8))
+
+        for i, pic in enumerate(self.x[:16]):
+            x, y = divmod(i, 4)
+            axarr[x][y].imshow(pic)
+
         #######################################################################
         #                                                                     #
         #                                                                     #
@@ -89,7 +119,11 @@ class ImageGenerator(object):
         # right edge of the picture.
         # Hint: Numpy.roll
         # (https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.roll.html)
-        raise NotImplementedError
+
+        self.x = np.roll(self.x, shift_height, axis = 1) # axis 0 of x is the image index
+        self.x = np.roll(self.x, shift_width, axis = 2)
+
+        self.n_pixels_translated = shift_width + shift_height
         #######################################################################
         #                                                                     #
         #                                                                     #
@@ -107,7 +141,15 @@ class ImageGenerator(object):
         """
         # TODO: Implement the rotate function. Remember to record the value of
         # rotation degree.
-        raise NotImplementedError
+        x = self.x
+        rotated = np.zeros_like(x)
+
+        for i, pic in  enumerate(x):
+            rotate(pic, angle, axes = (0,1), output = rotated[i], reshape = False)
+
+        self.x = rotated
+        self.rotation_angle = angle
+        #raise NotImplementedError
         #######################################################################
         #                                                                     #
         #                                                                     #
@@ -123,7 +165,24 @@ class ImageGenerator(object):
         """
         # TODO: Implement the flip function. Remember to record the boolean values is_horizontal_flip and
         # is_vertical_flip.
-        raise NotImplementedError
+        x = self.x
+
+        if mode == 'h':
+            d = [0]
+            self.is_horizontal_flip = True
+        elif mode == 'v':
+            d = [1]
+            self.is_vertical_flip = True
+        else:
+            d = [0, 1]
+            self.is_horizontal_flip = True
+            self.is_vertical_flip  = True
+        for i, pic in  enumerate(x):
+            for dim in d:
+                x[i] = np.flip(pic, axis = dim)
+        self.x = x
+
+        #raise NotImplementedError
         #######################################################################
         #                                                                     #
         #                                                                     #
@@ -142,7 +201,12 @@ class ImageGenerator(object):
         # TODO: Implement the add_noise function. Remember to record the
         # boolean value is_add_noise. You can try uniform noise or Gaussian
         # noise or others ones that you think appropriate.
-        raise NotImplementedError
+        mask = np.random.choice(a=[True, False], size= self.x.shape , p=[portion, 1-portion])
+        rand = np.random.normal(loc=0, scale= amplitude, size = self.x.shape)
+
+        self.x[mask] = rand[mask]
+        self.is_add_noise = True
+        #raise NotImplementedError
         #######################################################################
         #                                                                     #
         #                                                                     #

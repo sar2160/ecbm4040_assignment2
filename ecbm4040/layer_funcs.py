@@ -151,7 +151,29 @@ def conv2d_forward(x, w, b, pad, stride):
     #                                                                     #
     #                                                                     #
     #######################################################################
-    raise NotImplementedError
+    filter_height = w.shape[1]
+    filter_width  = w.shape[2]
+    height        = x.shape[1]
+    width         = x.shape[2]
+    new_height = ((height - filter_height + 2 * pad) // stride) + 1
+    new_width = ((width - filter_width + 2 * pad) // stride) + 1
+    x_padded = np.zeros( (x.shape[0] , height + 2*pad , width + 2 * pad , w.shape[0])) # 2*pad?
+    x_padded[:,pad:-pad, pad:-pad, :] = x
+    out = np.zeros((x.shape[0], new_height , new_width, w.shape[0]) )
+
+    for batch in range(x.shape[0]):
+        for channel in range(x.shape[3]):
+            for num_filter in range(w.shape[0]):
+                for x_i in range(new_width):
+                    for y_i in range(new_height):
+                        y_loc = y_i * stride
+                        x_loc = x_i * stride
+                        out[batch, x_i, y_i, num_filter] += \
+                            ((x_padded[batch, x_loc:(x_loc + filter_width), y_loc:(y_loc+filter_height), channel] *  w[num_filter,:,:,channel]).sum()\
+                            + b[num_filter])
+
+    return out
+    #raise NotImplementedError
 
 
 def conv2d_backward(d_top, x, w, b, pad, stride):
@@ -185,4 +207,3 @@ def conv2d_backward(d_top, x, w, b, pad, stride):
     #                                                                     #
     #######################################################################
     raise NotImplementedError
-
