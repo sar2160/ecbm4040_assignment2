@@ -68,19 +68,18 @@ class ImageGenerator(object):
         total_batches, remainder = divmod(num_of_samples, batch_size)
         batch_count = 0
         while True:
+            idx_start = batch_count       * batch_size
+            idx_stop  = (batch_count + 1) * batch_size
+            
             if (batch_count < total_batches):
                 batch_count += 1
-                idx_start = batch_count       * batch_size
-                idx_stop  = (batch_count + 1) * batch_size
                 yield (x[idx_start:idx_stop, :, : ,:] , y[idx_start:idx_stop])
+
             else:
-          
-                idx_start = batch_count * batch_size
-                print('HI')
                 batch_count = 0
-                yield (x[idx_start:, :, : ,:] , y[idx_start:])
                 if shuffle:
                     np.random.shuffle(x)
+
         #raise NotImplementedError
         #######################################################################
         #                                                                     #

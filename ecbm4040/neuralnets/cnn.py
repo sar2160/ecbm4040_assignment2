@@ -286,7 +286,7 @@ def reshapeArray(X):
 
 
 
-def my_training_task4(X_train, y_train, X_val, y_val, 
+def my_training_task4(Train, X_val, y_val, 
              conv_featmap=[6],
              fc_units=[84, 84],
              conv_kernel_size=[5],
@@ -324,7 +324,7 @@ def my_training_task4(X_train, y_train, X_val, y_val,
                          l2_norm=l2_norm,
                          seed=seed)
 
-    iters = int(X_train.shape[0] / batch_size)
+    iters = int(Train.x.shape[0] / batch_size)
     print('number of batches for training: {}'.format(iters))
     
    
@@ -356,9 +356,8 @@ def my_training_task4(X_train, y_train, X_val, y_val,
                 print("Load model Failed!")
                 pass
 
-        train = ImageGenerator(X_train, y_train)
                                                                                         
-        train_generator = train.next_batch_gen(batch_size)
+        train_generator = Train.next_batch_gen(batch_size)
             
             
         for epc in range(epoch):
@@ -369,7 +368,6 @@ def my_training_task4(X_train, y_train, X_val, y_val,
                 iter_total += 1
                 
                 (training_batch_x, training_batch_y) = next(train_generator)
-                print(training_batch_x.shape)
 
                 _, cur_loss = sess.run([step, loss], feed_dict={xs: training_batch_x, ys: training_batch_y})
 
@@ -380,7 +378,7 @@ def my_training_task4(X_train, y_train, X_val, y_val,
                     if verbose:
                         print('{}/{} loss: {} validation accuracy : {}%'.format(
                             batch_size * (itr + 1),
-                            X_train.shape[0],
+                            Train.x.shape[0],
                             cur_loss,
                             valid_acc))
 
