@@ -26,9 +26,9 @@ class ImageGenerator(object):
         self.num_of_samples = x.shape[0]
         self.height         = x.shape[1]
         self.width          = x.shape[2]
-        self.n_pixels_translated = None
-        self.rotation_angle      = None
-        self.is_add_noise        = None
+        self.n_pixels_translated = False
+        self.rotation_angle      = False
+        self.is_add_noise        = False
         #raise NotImplementedError
         #######################################################################
         #                                                                     #
@@ -64,18 +64,23 @@ class ImageGenerator(object):
         #           reset batch_count
         x = self.x
         y = self.y
-        total_batches, remainder = divmod(self.num_of_samples, batch_size)
+        num_of_samples = self.num_of_samples
+        total_batches, remainder = divmod(num_of_samples, batch_size)
         batch_count = 0
         while True:
             if (batch_count < total_batches):
                 batch_count += 1
-                idx_start = batch_count*num_of_samples
-                idx_stop  = (batch_count+1) * num_of_samples
-                yield x[idx_start:idx_stop, :, : ,:] , y[idx_start:idx_stop]
+                idx_start = batch_count       * batch_size
+                idx_stop  = (batch_count + 1) * batch_size
+                yield (x[idx_start:idx_stop, :, : ,:] , y[idx_start:idx_stop])
             else:
-                np.random.shuffle(x)
+          
+                idx_start = batch_count * batch_size
+                print('HI')
                 batch_count = 0
-
+                yield (x[idx_start:, :, : ,:] , y[idx_start:])
+                if shuffle:
+                    np.random.shuffle(x)
         #raise NotImplementedError
         #######################################################################
         #                                                                     #
@@ -172,14 +177,16 @@ class ImageGenerator(object):
             self.is_horizontal_flip = True
         elif mode == 'v':
             d = [1]
-            self.is_vertical_flip = True
+            self.is_vertical_flip   = True
         else:
             d = [0, 1]
             self.is_horizontal_flip = True
-            self.is_vertical_flip  = True
+            self.is_vertical_flip   = True
+
         for i, pic in  enumerate(x):
             for dim in d:
                 x[i] = np.flip(pic, axis = dim)
+
         self.x = x
 
         #raise NotImplementedError
