@@ -24,7 +24,7 @@ def my_LeNet(input_x, input_y,
     """
     My version of LeNet, changes include:
     * option to use Adam optimizer
-    * added a 3rd fully-connected layer
+    * added a 3rd fully-connected layer, didn't improve performance so removed it.
 
     """
 
@@ -43,7 +43,7 @@ def my_LeNet(input_x, input_y,
     
     conv_layer_1 = conv_layer(input_x=pooling_layer_0,
                               in_channel=channel_num,
-                              out_channel=conv_featmap[0],
+                              out_channel=conv_featmap[1],
                               kernel_shape=conv_kernel_size[1],
                               rand_seed=seed)
 
@@ -67,23 +67,17 @@ def my_LeNet(input_x, input_y,
                           index=0)
 
     fc_layer_1 = fc_layer(input_x=fc_layer_0.output(),
-                          in_size=fc_units[0],
+                          in_size=fc_units[1],
                           out_size=units[1],
                           rand_seed=seed,
                           activation_function=tf.nn.relu,
                           index=1)
-    
-    fc_layer_2 = fc_layer(input_x=fc_layer_0.output(),
-                          in_size=fc_units[1],
-                          out_size=output_size,
-                          rand_seed=seed,
-                          activation_function=None,
-                          index=1)
+
 
 
     # saving the parameters for l2_norm loss
     conv_w = [conv_layer_0.weight, conv_layer_1.weight]
-    fc_w = [fc_layer_0.weight, fc_layer_1.weight, fc_layer_2.weight]
+    fc_w = [fc_layer_0.weight, fc_layer_1.weight]
 
     # loss
     with tf.name_scope("loss"):
@@ -145,10 +139,10 @@ def evaluate(output, input_y):
 
 # my training function
 def my_training(X_train, y_train, X_val, y_val, 
-             conv_featmap=[6],
+             conv_featmap=[6, 6],
              fc_units=[84, 84],
-             conv_kernel_size=[5],
-             pooling_size=[2],
+             conv_kernel_size=[5, 5],
+             pooling_size=[2, 2],
              l2_norm=0.01,
              seed=235,
              learning_rate=1e-2,
@@ -287,10 +281,10 @@ def reshapeArray(X):
 
 
 def my_training_task4(Train, X_val, y_val, 
-             conv_featmap=[6],
+             conv_featmap=[6, 6],
              fc_units=[84, 84],
-             conv_kernel_size=[5],
-             pooling_size=[2],
+             conv_kernel_size=[5, 5],
+             pooling_size=[2, 2],
              l2_norm=0.01,
              seed=235,
              learning_rate=1e-2,

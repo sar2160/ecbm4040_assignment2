@@ -172,7 +172,7 @@ def conv2d_forward(x, w, b, pad, stride):
                             ((x_padded[batch, x_loc:(x_loc + filter_width), y_loc:(y_loc+filter_height), channel] *  w[num_filter,:,:,channel]).sum()\
                             + b[num_filter])
 
-    return out
+    return out, x_padded
     #raise NotImplementedError
 
 
