@@ -17,7 +17,7 @@ from ecbm4040.image_generator import ImageGenerator
 
 
 def my_LeNet(input_x, input_y,
-          img_len=32, channel_num=3, output_size=10,
+          img_len=64, channel_num=3, output_size=10,
           conv_featmap=[6, 16], fc_units=[84, 84],
           conv_kernel_size=[5, 5], pooling_size=[2, 2],
           l2_norm=0.01, seed=235):
@@ -73,7 +73,7 @@ def my_LeNet(input_x, input_y,
                           activation_function=tf.nn.relu,
                           index=1)
     
-    fc_layer_2 = fc_layer(input_x=fc_layer_0.output(),
+    fc_layer_2 = fc_layer(input_x=fc_layer_1.output(),
                           in_size=fc_units[1],
                           out_size=output_size,
                           rand_seed=seed,
@@ -98,7 +98,7 @@ def my_LeNet(input_x, input_y,
 
         tf.summary.scalar('LeNet_loss', loss)
 
-    return fc_layer_1.output(), loss
+    return fc_layer_2.output(), loss
 
 
 def cross_entropy(output, input_y):
@@ -168,11 +168,11 @@ def my_training(X_train, y_train, X_val, y_val,
 
     # define the variables and parameter needed during training
     with tf.name_scope('inputs'):
-        xs = tf.placeholder(shape=[None, 32, 32, 3], dtype=tf.float32)
+        xs = tf.placeholder(shape=[None, 64, 64, 3], dtype=tf.float32)
         ys = tf.placeholder(shape=[None, ], dtype=tf.int64)
 
     output, loss = LeNet(xs, ys,
-                         img_len=32,
+                         img_len=64,
                          channel_num=3,
                          output_size=10,
                          conv_featmap=conv_featmap,
@@ -269,24 +269,11 @@ def my_training(X_train, y_train, X_val, y_val,
 #            End of your code            #
 ##########################################
 
-def reshapeImg(X,idx):
-    img_flat = X[idx,:].flatten()
-    img_R = img_flat[0:1024].reshape((32, 32)) / 255
-    img_G = img_flat[1024:2048].reshape((32, 32)) / 255
-    img_B = img_flat[2048:3072].reshape((32, 32)) /255
-    img = np.dstack((img_R, img_G, img_B))
-    return img
-
-def reshapeArray(X):
-    container = np.ndarray((X.shape[0],32,32,3))
-    for n in range(X.shape[0]):
-        container[n] = reshapeImg(X,n)
-
-    return container
 
 
 
-def my_training_task4(Train, X_val, y_val, 
+
+def my_training_generator(Train, X_val, y_val, 
              conv_featmap=[6],
              fc_units=[84, 84],
              conv_kernel_size=[5],
@@ -310,7 +297,7 @@ def my_training_task4(Train, X_val, y_val,
 
     # define the variables and parameter needed during training
     with tf.name_scope('inputs'):
-        xs = tf.placeholder(shape=[None, 32, 32, 3], dtype=tf.float32)
+        xs = tf.placeholder(shape=[None, 64, 64, 3], dtype=tf.float32)
         ys = tf.placeholder(shape=[None, ], dtype=tf.int64)
 
     output, loss = LeNet(xs, ys,
@@ -410,3 +397,7 @@ def my_training_task4(Train, X_val, y_val,
     
     # return results and parameters
     return best_acc, cache
+
+
+
+

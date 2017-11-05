@@ -62,8 +62,6 @@ class ImageGenerator(object):
         #       else:
         #           shuffle(x)
         #           reset batch_count
-        x = self.x
-        y = self.y
         num_of_samples = self.num_of_samples
         total_batches, remainder = divmod(num_of_samples, batch_size)
         batch_count = 0
@@ -73,14 +71,15 @@ class ImageGenerator(object):
             
             if (batch_count < total_batches):
                 batch_count += 1
-                yield (x[idx_start:idx_stop, :, : ,:] , y[idx_start:idx_stop])
+                yield (self.x[idx_start:idx_stop, :, : ,:] , self.y[idx_start:idx_stop])
 
             else:
-                batch_count = 0
                 if shuffle:
-                    np.random.shuffle(x)
-
-        #raise NotImplementedError
+                    reindex      = np.random.permutation(self.x.shape[0])
+                    self.x       = self.x[reindex]
+                    print('shuffled!')
+                batch_count = 0
+      #raise NotImplementedError
         #######################################################################
         #                                                                     #
         #                                                                     #
